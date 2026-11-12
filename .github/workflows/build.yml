@@ -1,0 +1,81 @@
+name: Build Oneiroi patch
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: [ '**.md' ]
+  workflow_dispatch:
+
+env:
+  OWLPROGRAM_REF: 9706d5d9c7bb802ae52d3b6b92a4f0d795aa5c9f
+  FIRMWARESENDER_REF: 12300e4ef02370395d00e2de2b95f70b2ba3fe0f
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout patch source
+        uses: actions/checkout@v4
+        with:
+          path: patchsrc
+
+      - name: Checkout OwlProgram
+        uses: actions/checkout@v4
+        with:
+          repository: pingdynasty/OwlProgram
+          ref: ${{ env.OWLPROGRAM_REF }}
+          submodules: recursive
+          path: OwlProgram
+
+      - name: Checkout FirmwareSender
+        uses: actions/checkout@v4
+        with:
+          repository: pingdynasty/FirmwareSender
+          ref: ${{ env.FIRMWARESENDER_REF }}
+          path: FirmwareSender
+
+      - name: Setup arm-none-eabi-gcc
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '13.3.Rel1'
+
+      - name: Install host libraries for FirmwareSender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libcurl4-openssl-dev libfreetype-dev libx11-dev \
+            libxext-dev libxinerama-dev libxrandr-dev libxcursor-dev \
+            libgl1-mesa-dev pkg-config
+
+      - name: Build FirmwareSender
+        run: |
+          make -C FirmwareSender/Builds/Linux CONFIG=Release -j4
+          FS=$(find FirmwareSender/Builds/Linux/build -type f -name FirmwareSender | head -1)
+          echo "FirmwareSender: $FS"
+          cp "$FS" "$GITHUB_WORKSPACE/FirmwareSender-bin"
+          chmod +x "$GITHUB_WORKSPACE/FirmwareSender-bin"
+
+      - name: Use the Oneiroi header
+        run: cp patchsrc/build-support/OpenWareMidiControl.h OwlProgram/LibSource/OpenWareMidiControl.h
+
+      - name: Build patch libraries (ARM only)
+        working-directory: OwlProgram
+        run: make -s -j4 -f compile.mk PLATFORM=OWL3 CONFIG=Release libs
+
+      - name: Build patch.syx
+        working-directory: OwlProgram
+        run: |
+          make PLATFORM=OWL3 CONFIG=Release \
+            PATCHSOURCE="$GITHUB_WORKSPACE/patchsrc" PATCHNAME=Oneiroi_1_2_2 \
+            FIRMWARESENDER="$GITHUB_WORKSPACE/FirmwareSender-bin" \
+            sysex
+          ls -l Build/patch.bin Build/patch.syx
+          sha256sum Build/patch.bin Build/patch.syx
+
+      - name: Upload patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: oneiroi-patch
+          path: |
+            OwlProgram/Build/patch.syx
+            OwlProgram/Build/patch.bin
