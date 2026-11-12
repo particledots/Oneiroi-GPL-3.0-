@@ -10,6 +10,9 @@ env:
   OWLPROGRAM_REF: 9706d5d9c7bb802ae52d3b6b92a4f0d795aa5c9f
   FIRMWARESENDER_REF: 12300e4ef02370395d00e2de2b95f70b2ba3fe0f
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -83,3 +86,19 @@ jobs:
           path: |
             OwlProgram/Build/patch.syx
             OwlProgram/Build/patch.bin
+
+      - name: Publish built files to the builds branch
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp OwlProgram/Build/patch.syx OwlProgram/Build/patch.bin "$RUNNER_TEMP/out/"
+          sha256sum "$RUNNER_TEMP/out/"* > "$RUNNER_TEMP/out/SHA256.txt"
+          echo "source commit: $GITHUB_SHA" > "$RUNNER_TEMP/out/SOURCE.txt"
+          cd patchsrc
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan builds
+          git rm -rf -q .
+          cp "$RUNNER_TEMP/out/"* .
+          git add .
+          git commit -q -m "Build of $GITHUB_SHA [skip ci]"
+          git push -f origin builds
