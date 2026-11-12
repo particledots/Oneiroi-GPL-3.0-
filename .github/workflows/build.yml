@@ -60,7 +60,11 @@ jobs:
 
       - name: Build patch libraries (ARM only)
         working-directory: OwlProgram
-        run: make -s -j4 -f compile.mk PLATFORM=OWL3 CONFIG=Release libs
+        # The web (emscripten) half of "make libs" is not needed and fails
+        # without emcc, so its failure is ignored; the two ARM libraries are checked.
+        run: |
+          make -s -j4 PLATFORM=OWL3 CONFIG=Release libs || true
+          ls -l Libraries/libowlprg.a Libraries/libdaisysp.a
 
       - name: Build patch.syx
         working-directory: OwlProgram
