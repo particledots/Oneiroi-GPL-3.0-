@@ -91,6 +91,12 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/out"
           cp OwlProgram/Build/patch.syx OwlProgram/Build/patch.bin "$RUNNER_TEMP/out/"
+          ELF=$(find OwlProgram/Build -name '*.elf' | head -1)
+          echo "elf: $ELF" > "$RUNNER_TEMP/out/SYMBOLS.txt"
+          if [ -n "$ELF" ]; then
+            arm-none-eabi-size "$ELF" >> "$RUNNER_TEMP/out/SYMBOLS.txt" || true
+            arm-none-eabi-nm -C -S "$ELF" | grep -iE "snap|KnobController|Ui::" >> "$RUNNER_TEMP/out/SYMBOLS.txt" || true
+          fi
           sha256sum "$RUNNER_TEMP/out/"* > "$RUNNER_TEMP/out/SHA256.txt"
           echo "source commit: $GITHUB_SHA" > "$RUNNER_TEMP/out/SOURCE.txt"
           cd patchsrc
