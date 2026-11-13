@@ -8,6 +8,7 @@
 #include "SquareWaveOscillator.h"
 #include "Schmitt.h"
 #include "MidiMessage.h"
+#include "Snap.h" // ONEIROI-PERSONAL
 
 enum RandomMode { RANDOM_ALL, RANDOM_OSC, RANDOM_LOOPER, RANDOM_EFFECTS };
 
@@ -95,6 +96,9 @@ private:
         fadeInOutput_, parameterChangedSinceLastSave_, saving_, saveFlag_,
         undoRedo_, doRandomSlew_;
 
+    // ONEIROI-PERSONAL: pitch snap, switched with MOD/CV mode + a tap of RANDOM.
+    bool snapOn_, snapRandomWasPressed_;
+
     int lastOctave_, randomizeTask_;
 
     float octave_, tune_, vOctScale0_, vOctOffset0_, vOctScale1_, vOctOffset1_,
@@ -123,6 +127,8 @@ public:
         samplesSinceRandomPressed_ = 0;
 
         wasCvMap_ = false;
+        snapOn_ = false; // ONEIROI-PERSONAL: always off at power-up
+        snapRandomWasPressed_ = false;
         recordAndRandomPressed_ = false;
         recordPressed_ = false; // USE_RECORD_THRESHOLD
         fadeOutOutput_ = false;
@@ -993,6 +999,22 @@ public:
             samplesSinceModCvPressed_ = 0;
         }
 
+        // ONEIROI-PERSONAL: MOD/CV mode (MOD/CV on, SHIFT off) + a tap of
+        // RANDOM switches the pitch snap on or off. In stock, RANDOM alone does
+        // nothing in this mode. RECORD must not be pressed (that is the reset).
+        {
+            bool randomPressed = randomButton_->IsPressed();
+            if (randomPressed && !snapRandomWasPressed_ &&
+                FuncMode::FUNC_MODE_MOD == funcMode && patchState_->funcMode == funcMode &&
+                !recordButton_->IsPressed()) {
+                snapOn_ = !snapOn_;
+                if (snapOn_) {
+                    leds_[LED_RANDOM]->Blink(2);
+                }
+            }
+            snapRandomWasPressed_ = randomPressed;
+        }
+
         if (funcMode != patchState_->funcMode) {
             patchState_->funcMode = funcMode;
 
@@ -1224,6 +1246,14 @@ public:
 
         for (size_t i = 0; i < PARAM_KNOB_LAST; i++) {
             knobs_[i]->Read(ParamKnob(i));
+        }
+
+        // ONEIROI-PERSONAL: pitch snap on four knobs (off until switched on).
+        if (snapOn_) {
+            knobs_[PARAM_KNOB_OSC_PITCH]->Snap(snap::PitchKnob, 0.f);
+            knobs_[PARAM_KNOB_LOOPER_SPEED]->Snap(snap::SpeedKnob, patchState_->speedZero);
+            knobs_[PARAM_KNOB_RESONATOR_TUNE]->Snap(snap::TuneKnob, patchCtrls_->resonatorDissonance);
+            knobs_[PARAM_KNOB_FILTER_CUTOFF]->Snap(snap::CutoffKnob, 0.f);
         }
 
         for (size_t i = 0; i < PARAM_FADER_LAST; i++) {

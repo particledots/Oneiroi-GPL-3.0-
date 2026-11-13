@@ -4,10 +4,21 @@ Unofficial personal build, not affiliated with Befaco or Rebel Technology.
 Source: https://github.com/Befaco/Oneiroi (release 1.2.2, commit e048098), GPL-3.0.
 
 ## Source files changed
-None yet. This is the stock 1.2.2 build (step 2). Any later change will be
-listed here, file by file, and marked in the code with `// ONEIROI-PERSONAL`.
+Every change is marked in the code with `// ONEIROI-PERSONAL`.
+- `ParamController.h`: new method `KnobController::Snap()` (after `Read()`). It
+  snaps the smoothed knob value to a grid, only for the knob's main function
+  (not its Shift, Mod or CV function).
+- `Ui.h`: includes `Snap.h`; two new flags (`snapOn_`, `snapRandomWasPressed_`);
+  in `Poll()`, after the knobs are read, four knobs are snapped when snap is on
+  (Oscillator Pitch, Looper Speed, Resonator Tune, Filter Cutoff); in
+  `HandleLedButtons()`, MOD/CV mode + a tap of RANDOM switches snap on or off,
+  and RANDOM blinks twice when snap turns on. Snap is always off at power-up.
 
 ## Files added (not part of the original)
+- `Snap.h` : the snap grids, ported from `src/engine/AetherSnap.h` of
+  https://github.com/particledots/AetherUmbra (same author, GPL-3.0), text
+  read-outs removed. Checked on a PC against AetherSnap.h at 100,001 knob
+  positions (no differences).
 - `ONEIROI-CHANGES.md` (this file)
 - `README.md` and `CHANGELOG`: a marked "ONEIROI-PERSONAL" section appended at
   the end of each (test results only; the original text is untouched)

@@ -668,6 +668,18 @@ public:
         }
     }
 
+    // ONEIROI-PERSONAL: snap the smoothed knob value to a grid (see Snap.h).
+    // Only the main function of the knob is snapped; the Shift, Mod and CV
+    // functions of the knob keep the plain knob value. Movement detection
+    // still uses the raw knob value (readValue_).
+    inline void Snap(float (*fn)(float, float), float arg)
+    {
+        if (LockableParamName::PARAM_LOCKABLE_MAIN == selectedParam_)
+        {
+            ctrlValue_ = fn(ctrlValue_, arg);
+        }
+    }
+
     inline bool Process()
     {
         bool started = samplesSinceStartMoving_ > kParamStartMovementLimit;
