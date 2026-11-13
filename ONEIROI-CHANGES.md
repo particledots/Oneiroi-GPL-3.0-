@@ -9,6 +9,8 @@ listed here, file by file, and marked in the code with `// ONEIROI-PERSONAL`.
 
 ## Files added (not part of the original)
 - `ONEIROI-CHANGES.md` (this file)
+- `README.md` and `CHANGELOG`: a marked "ONEIROI-PERSONAL" section appended at
+  the end of each (test results only; the original text is untouched)
 - `.github/workflows/build.yml` : builds patch.syx on GitHub Actions
 - `build-support/OpenWareMidiControl.h` : copy of the header from
   https://github.com/pingdynasty/OpenWare, branch `mk/oneiroi`, commit
@@ -25,7 +27,12 @@ listed here, file by file, and marked in the code with `// ONEIROI-PERSONAL`.
   12300e4ef02370395d00e2de2b95f70b2ba3fe0f makes patch.syx.
 
 ## What is verified and what is not
-Verified: the source compiles and links (local test, patch.bin 102,596 bytes).
-Not verified: that this build is byte-identical to Befaco's official patch.syx
-(theirs shows size 101620 on the module; a different compiler version is the
-likely reason). Not yet tested on the module.
+Verified on the module (step 2, 12 Nov 2026, RAM test with Run only, nothing
+stored to slot 1): the stock build loads (Preset 0 Oneiroi_1_2_2 [102668]),
+CPU 84% (official 83%), memory unchanged. Looper recording from the Crave and
+from the oscillators with the resample switch flipped both work; loop length
+is correct and the sound is clear.
+Not verified: that this build is byte-identical to Befaco's official
+patch.syx (official: 121,008 bytes, module shows size 101620; this build:
+122,255 bytes, shows 102668; a different compiler version is the likely
+reason). Not stored to slot 1.

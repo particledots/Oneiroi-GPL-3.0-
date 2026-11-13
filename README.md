@@ -106,3 +106,10 @@ The [RECORD] button should light up red indicating you are in Calibration Mode.
   7- Push [MOD AMT] button to exit calibration mode.
 
 
+
+
+## ONEIROI-PERSONAL: test results (unofficial personal build)
+
+Step 2, stock build (no source changes), 12 Nov 2026. Loaded to RAM only (Run, not Store) on a real Oneiroi:
+loads fine (CPU 84%), looper recording from the Crave and from the oscillators (resample switch flipped) works, loop length correct, sound clear.
+See ONEIROI-CHANGES.md. Unofficial, not affiliated with Befaco.
