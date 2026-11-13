@@ -96,6 +96,10 @@ jobs:
           if [ -n "$ELF" ]; then
             arm-none-eabi-size "$ELF" >> "$RUNNER_TEMP/out/SYMBOLS.txt" || true
             arm-none-eabi-nm -C -S "$ELF" | grep -iE "snap|KnobController|Ui::" >> "$RUNNER_TEMP/out/SYMBOLS.txt" || true
+            echo "--- math functions present" >> "$RUNNER_TEMP/out/SYMBOLS.txt"
+            arm-none-eabi-nm -C -S "$ELF" | grep -E " (exp2f|log2f|lroundf|roundf|copysignf|logf|expf|__ieee754_exp2f|__ieee754_log2f)$" >> "$RUNNER_TEMP/out/SYMBOLS.txt" || true
+            echo "--- calls to them (count per target)" >> "$RUNNER_TEMP/out/SYMBOLS.txt"
+            arm-none-eabi-objdump -d -C "$ELF" | grep -E "^\s+[0-9a-f]+:.*\bbl?x?\s+[0-9a-f]+ <(exp2f|log2f|lroundf|roundf|copysignf|logf|expf)" | sed -E 's/.*<([a-z0-9_]+)>.*/\1/' | sort | uniq -c >> "$RUNNER_TEMP/out/SYMBOLS.txt" || true
           fi
           sha256sum "$RUNNER_TEMP/out/"* > "$RUNNER_TEMP/out/SHA256.txt"
           echo "source commit: $GITHUB_SHA" > "$RUNNER_TEMP/out/SOURCE.txt"
