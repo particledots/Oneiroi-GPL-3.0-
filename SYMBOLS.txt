@@ -1,0 +1,16 @@
+elf: OwlProgram/Build/patch.elf
+   text	   data	    bss	    dec	    hex	filename
+ 101302	   1308	   1100	 103710	  1951e	OwlProgram/Build/patch.elf
+240030a8 00000044 T KnobController::GetCatchUpState()
+24003020 00000088 T KnobController::Reset()
+240033bc 00000444 T KnobController::Process()
+2400cdf0 000002fc t KnobController::Randomize(RandomAmount, LockableParamName, bool) [clone .constprop.0]
+2400c968 00000168 t KnobController::KnobController(PatchState*, float*, float*, float*, float*, float, float) [clone .constprop.0] [clone .isra.0]
+2400cb38 000002b8 t Ui::SaveParametersConfig(FuncMode)
+2401113c 00002d56 t Ui::Poll()
+24018be0 00000014 d vtable for KnobController
+--- math functions present
+24016dcc 00000016 T copysignf
+24016e94 00000068 T lroundf
+24016900 0000004c T roundf
+--- calls to them (count per target)

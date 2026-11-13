@@ -1,0 +1,3 @@
+b19baf127be9238623b51eaa85286f6f54e5264317f2f8ae7a215b1f97972717  /home/runner/work/_temp/out/SYMBOLS.txt
+75346ca8e392b1c2fed39ac441030e602618340b13f4833f65d272ef8519ae69  /home/runner/work/_temp/out/patch.bin
+6749a7c9959778eff729f17dd6c9c44a5d4769996faa875c07d980f7113edd0c  /home/runner/work/_temp/out/patch.syx
