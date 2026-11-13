@@ -119,4 +119,5 @@ Snap is switched on or off with MOD/CV mode + a tap of RANDOM (off at every powe
 whole semitones, Looper Speed lands on semitone ratios with a firm 1x centre, Filter Cutoff lands on notes, Shift functions and the other knobs are unchanged.
 The RANDOM LED blinks twice both when snap is switched on and when it is switched off. With snap on, Random at maximum amount still changes
 everything drastically, but everything stays in tune and harmonically related. After Random each knob takes over as soon as it is turned and the arrow
-LEDs do not blink continuously. Not tested: undo / redo with snap on. Not stored to slot 1.
+LEDs do not blink continuously. Undo / redo with snap on works as normal. With snap off it sounds identical to stock (by ear). The module page shows
+Preset 0 Oneiroi_1_2_2 [102612], CPU 83%, memory 7319080 (unchanged). Not stored to slot 1.

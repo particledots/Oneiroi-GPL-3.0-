@@ -56,7 +56,9 @@ the knobs take over when turned and the arrow LEDs do not blink continuously.
 The RANDOM LED blinks twice both when snap turns on and when it turns off
 (the code was written to blink twice on and show the stock single flash off;
 this difference is cosmetic and not changed).
-Not verified: undo / redo with snap on; CPU load and size of this build on the
-module page; that snap off sounds identical to stock (only by reading the
-code). The built patch.bin is 102,612 bytes, 56 bytes smaller than the stock
+Also verified (owner, same session): undo / redo with snap on works as normal;
+with snap off it sounds identical to stock (by ear, not bit for bit); the module
+page shows Preset 0 Oneiroi_1_2_2 [102612], CPU 83%, memory 7319080 (unchanged
+from stock).
+Not verified: that snap off is bit-for-bit identical to stock. The built patch.bin is 102,612 bytes, 56 bytes smaller than the stock
 build (102,668); the reason is not known.
