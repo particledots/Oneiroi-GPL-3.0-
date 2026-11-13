@@ -58,3 +58,4 @@
 ## ONEIROI-PERSONAL (unofficial, not part of Befaco's changelog)
 
 - Step 2 (2026-11-12): stock 1.2.2 source built on GitHub Actions; RAM test on the module passed (loads, looper from Crave and from oscillators with resample switch works).
+- Step 3 (2026-11-12): pitch snap on Oscillator Pitch, Resonator Tune, Looper Speed and Filter Cutoff, switched with MOD/CV mode + RANDOM tap (off at power-up). RAM test on the module passed. Undo/redo with snap on not tested. Not stored to slot 1.

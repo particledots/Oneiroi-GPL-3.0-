@@ -47,3 +47,16 @@ Not verified: that this build is byte-identical to Befaco's official
 patch.syx (official: 121,008 bytes, module shows size 101620; this build:
 122,255 bytes, shows 102668; a different compiler version is the likely
 reason). Not stored to slot 1.
+
+## Step 3 (pitch snap), 12 Nov 2026
+Verified on the module (RAM test with Run only, nothing stored to slot 1):
+the four knobs snap as described above, Shift functions and the other knobs
+are unchanged, the switch gesture works, and after Random at maximum amount
+the knobs take over when turned and the arrow LEDs do not blink continuously.
+The RANDOM LED blinks twice both when snap turns on and when it turns off
+(the code was written to blink twice on and show the stock single flash off;
+this difference is cosmetic and not changed).
+Not verified: undo / redo with snap on; CPU load and size of this build on the
+module page; that snap off sounds identical to stock (only by reading the
+code). The built patch.bin is 102,612 bytes, 56 bytes smaller than the stock
+build (102,668); the reason is not known.

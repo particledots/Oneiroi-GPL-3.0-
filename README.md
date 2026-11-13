@@ -113,3 +113,10 @@ The [RECORD] button should light up red indicating you are in Calibration Mode.
 Step 2, stock build (no source changes), 12 Nov 2026. Loaded to RAM only (Run, not Store) on a real Oneiroi:
 loads fine (CPU 84%), looper recording from the Crave and from the oscillators (resample switch flipped) works, loop length correct, sound clear.
 See ONEIROI-CHANGES.md. Unofficial, not affiliated with Befaco.
+
+Step 3, pitch snap (source commit 91b7eca, patch built on GitHub Actions), 12 Nov 2026. Loaded to RAM only (Run, not Store) on a real Oneiroi.
+Snap is switched on or off with MOD/CV mode + a tap of RANDOM (off at every power-up). Tested by the owner: Oscillator Pitch and Resonator Tune jump in
+whole semitones, Looper Speed lands on semitone ratios with a firm 1x centre, Filter Cutoff lands on notes, Shift functions and the other knobs are unchanged.
+The RANDOM LED blinks twice both when snap is switched on and when it is switched off. With snap on, Random at maximum amount still changes
+everything drastically, but everything stays in tune and harmonically related. After Random each knob takes over as soon as it is turned and the arrow
+LEDs do not blink continuously. Not tested: undo / redo with snap on. Not stored to slot 1.
