@@ -75,3 +75,20 @@ module): Snap() wrote the snapped value back into the smoother state, so for the
 slow knobs (smoothing 0.005 Speed and Tune, 0.01 Cutoff) the smoothed value could
 not leave its step until the knob was far away. Pitch (smoothing 0.995) was not
 affected. Fix: the snapped value is stored separately, the smoother is untouched.
+
+## Looper Speed grid and CV offset, 16 Nov 2026 (fix 2)
+Owner's findings (RAM test, fix 1): Looper Speed steps were much finer than the
+Pitch steps at slow speeds (a semitone step on a linear knob is about 2.7% of the
+knob travel near 2x, 0.7% near 0.5x, 0.3% near 0.25x; Pitch 8.3%), and with snap
+on the loop played slightly sharp against the oscillator when Speed was moved up.
+Changes (`Snap.h`, `Ui.h`; not yet verified on the module):
+- Grid for Looper Speed (owner chose option C): semitones from 1x to 2x; below 1x
+  only 1x, a fifth (0.67x), an octave (0.5x), octave + fifth, 2 octaves, ... down
+  to 1/8x. Reverse mirrors forward. The 0x and 1x / -1x zones are unchanged.
+- Looper.h adds CV amount x CV value to the speed (Modulate()); with nothing
+  plugged into the CV jack the CV value is forced to 0.007, so the speed is
+  0.007 x CV amount too high. The 1x lock zone hides it at 1x only. Snap now
+  subtracts that amount (`snap::speedOffset`, set in `Ui::Poll()`), so the played
+  speed lands on 2^(n/12). Not compensated: the Mod amount x Mod value.
+- PC check (Snap.h compiled on a PC): played speeds land on the grid, with and
+  without the offset.
