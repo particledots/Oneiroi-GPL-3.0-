@@ -510,6 +510,11 @@ private:
     LockableParam lockableParams_[PARAM_LOCKABLE_LAST];
     LockableParamName selectedParam_;
 
+    // ONEIROI-PERSONAL: snapped copy of the smoothed knob value (kept apart
+    // from the smoother state ctrlValue_, see Snap()).
+    float snapValue_;
+    bool useSnap_;
+
 public:
     KnobController() {}
     KnobController(PatchState* patchState, float* mainParam, float* altParam, float* modParam, float* cvParam, float lpCoeff, float movementDelta)
@@ -528,6 +533,9 @@ public:
         readValue_ = 0.f;
         ctrlValue_ = 0.f;
         storedValue_ = 0.f;
+
+        snapValue_ = 0.f; // ONEIROI-PERSONAL
+        useSnap_ = false; // ONEIROI-PERSONAL
 
         first_ = true;
         moving_ = false;
@@ -657,6 +665,7 @@ public:
     inline void Read(ParamKnob ctrl)
     {
         readValue_ = getInitialisingPatchProcessor()->patch->getParameterValue(paramKnobMap[ctrl]);
+        useSnap_ = false; // ONEIROI-PERSONAL: Snap() sets it again if it is called
 
         if (lpCoeff_ > 0 && !first_)
         {
@@ -672,11 +681,15 @@ public:
     // Only the main function of the knob is snapped; the Shift, Mod and CV
     // functions of the knob keep the plain knob value. Movement detection
     // still uses the raw knob value (readValue_).
+    // The snapped value goes into snapValue_, NOT back into ctrlValue_: ctrlValue_
+    // is the state of the one-pole smoother in Read(), and writing the snapped
+    // value back made slow knobs (smoothing 0.005 / 0.01) stick to a step.
     inline void Snap(float (*fn)(float, float), float arg)
     {
         if (LockableParamName::PARAM_LOCKABLE_MAIN == selectedParam_)
         {
-            ctrlValue_ = fn(ctrlValue_, arg);
+            snapValue_ = fn(ctrlValue_, arg);
+            useSnap_ = true;
         }
     }
 
@@ -726,7 +739,7 @@ public:
 
         for (size_t i = 0; i < LockableParamName::PARAM_LOCKABLE_LAST; i++)
         {
-            lockableParams_[i].Process(ctrlValue_, moving_);
+            lockableParams_[i].Process(useSnap_ ? snapValue_ : ctrlValue_, moving_); // ONEIROI-PERSONAL: was ctrlValue_
         }
 
         return moving_;

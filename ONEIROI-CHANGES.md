@@ -7,7 +7,9 @@ Source: https://github.com/Befaco/Oneiroi (release 1.2.2, commit e048098), GPL-3
 Every change is marked in the code with `// ONEIROI-PERSONAL`.
 - `ParamController.h`: new method `KnobController::Snap()` (after `Read()`). It
   snaps the smoothed knob value to a grid, only for the knob's main function
-  (not its Shift, Mod or CV function).
+  (not its Shift, Mod or CV function). The snapped value is kept in its own
+  variable (`snapValue_`) and used in `Process()`; the smoother state is not
+  touched (fixed 16 Nov 2026, see below).
 - `Ui.h`: includes `Snap.h`; two new flags (`snapOn_`, `snapRandomWasPressed_`);
   in `Poll()`, after the knobs are read, four knobs are snapped when snap is on
   (Oscillator Pitch, Looper Speed, Resonator Tune, Filter Cutoff); in
@@ -62,3 +64,14 @@ page shows Preset 0 Oneiroi_1_2_2 [102612], CPU 83%, memory 7319080 (unchanged
 from stock).
 Not verified: that snap off is bit-for-bit identical to stock. The built patch.bin is 102,612 bytes, 56 bytes smaller than the stock
 build (102,668); the reason is not known.
+
+## Fix, 16 Nov 2026 (step 3 retest)
+Found on the module (owner, RAM test, 16 Nov 2026): with snap on, only Oscillator
+Pitch stepped. Looper Speed did not step (erratic jumps at the far left and right),
+Resonator Tune and Filter Cutoff swept over a restricted range. This contradicts
+the 12 Nov result for those three knobs; why that was not seen then is not known.
+Cause found by reading the code and a PC simulation (not yet verified on the
+module): Snap() wrote the snapped value back into the smoother state, so for the
+slow knobs (smoothing 0.005 Speed and Tune, 0.01 Cutoff) the smoothed value could
+not leave its step until the knob was far away. Pitch (smoothing 0.995) was not
+affected. Fix: the snapped value is stored separately, the smoother is untouched.
