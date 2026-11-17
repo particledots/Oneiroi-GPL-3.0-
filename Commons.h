@@ -341,6 +341,7 @@ struct PatchState
     float randomSlew;
 
     bool randomHasSlew;
+    bool snapOn; // ONEIROI-PERSONAL: pitch snap is on (set in Ui.h, read in Looper.h)
     bool softTakeover;
     bool modAttenuverters;
     bool cvAttenuverters;

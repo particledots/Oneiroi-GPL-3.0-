@@ -22,41 +22,42 @@ inline float PitchKnob(float v, float)
 }
 
 // Looper Speed: CenterMap turns the knob into -2..+2 with 0 at speedZero (the
-// calibrated centre, passed as arg). Looper.h then ADDS a small amount to that
-// value (Modulate(): CV amount * CV value; with nothing plugged in the CV value
-// is forced to kCvMinThreshold). speedOffset is that amount, set by Ui.h before
-// the call, so the speed the looper really plays lands on the grid.
-// Grid (forward and reversed): semitones 2^(n/12) from 1x to 2x; below 1x only
-// 1x, then a fifth (n = -7), an octave (-12), octave + fifth (-19), 2 octaves
-// (-24), ... down to 1/8 (-36). The zones the firmware locks at 0x (under 0.1)
-// and 1x / -1x (0.95 to 1.05) are left alone.
-static float speedOffset = 0.f;
+// calibrated centre, passed as arg). Grid (forward and reversed): semitones
+// 2^(n/12) from 1x to 2x; below 1x only 1x, then a fifth (n = -7), an octave
+// (-12), octave + fifth (-19), 2 octaves (-24), ... down to 1/8 (-36). The zones
+// the firmware locks at 0x (under 0.1) and 1x / -1x (0.95 to 1.05) are left alone.
+// Hysteresis: the step chosen last is kept until the knob is clearly closer to
+// another one (kSpeedHyst semitones past the middle), so a trembling knob or
+// noise cannot flip between neighbouring steps.
+constexpr float kSpeedHyst = 0.4f;
 inline float SpeedKnob(float knob, float zero)
 {
-    const float v0 = knob < zero ? -2.f + 2.f * knob / zero
-                                 : 2.f * (knob - zero) / (kSpeedTop - zero);
-    const float v = v0 + speedOffset; // the speed Looper.h will see
+    static int lastM = 0;
+    static bool lastNeg = false;
+    static bool lastValid = false;
+    static const int kSteps[19] = {-36, -31, -24, -19, -12, -7, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+
+    const float v = knob < zero ? -2.f + 2.f * knob / zero
+                                : 2.f * (knob - zero) / (kSpeedTop - zero);
     const float a = fabsf(v);
     if (a <= 0.1f || (a >= 0.95f && a <= 1.05f))
+    {
+        lastValid = false;
         return knob;
-    int n;
-    if (a > 1.f)
-    {
-        n = (int)lroundf(12.f * log2f(a));
-        if (n > 12)
-            n = 12;
     }
-    else
-    {
-        static const int kDown[7] = {0, 7, 12, 19, 24, 31, 36};
-        const float x = -12.f * log2f(a); // semitones below 1x, > 0
-        int best = 0;
-        for (int i = 1; i < 7; i++)
-            if (fabsf(x - (float)kDown[i]) < fabsf(x - (float)kDown[best]))
-                best = i;
-        n = -kDown[best];
-    }
-    const float s = copysignf(exp2f((float)n / 12.f), v) - speedOffset; // wanted knob speed
+    const bool neg = v < 0.f;
+    const float x = 12.f * log2f(a); // semitones from 1x
+    int best = 0;
+    for (int i = 1; i < 19; i++)
+        if (fabsf(x - (float)kSteps[i]) < fabsf(x - (float)kSteps[best]))
+            best = i;
+    int m = kSteps[best];
+    if (lastValid && lastNeg == neg && fabsf(x - (float)lastM) <= fabsf(x - (float)m) + kSpeedHyst)
+        m = lastM;
+    lastM = m;
+    lastNeg = neg;
+    lastValid = true;
+    const float s = copysignf(exp2f((float)m / 12.f), v);
     const float k = s < 0.f ? (s + 2.f) * zero / 2.f
                             : zero + s * (kSpeedTop - zero) / 2.f;
     return Clamp01(k);

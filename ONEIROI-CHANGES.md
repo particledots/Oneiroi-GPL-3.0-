@@ -76,19 +76,27 @@ slow knobs (smoothing 0.005 Speed and Tune, 0.01 Cutoff) the smoothed value coul
 not leave its step until the knob was far away. Pitch (smoothing 0.995) was not
 affected. Fix: the snapped value is stored separately, the smoother is untouched.
 
-## Looper Speed grid and CV offset, 16 Nov 2026 (fix 2)
-Owner's findings (RAM test, fix 1): Looper Speed steps were much finer than the
-Pitch steps at slow speeds (a semitone step on a linear knob is about 2.7% of the
-knob travel near 2x, 0.7% near 0.5x, 0.3% near 0.25x; Pitch 8.3%), and with snap
-on the loop played slightly sharp against the oscillator when Speed was moved up.
-Changes (`Snap.h`, `Ui.h`; not yet verified on the module):
-- Grid for Looper Speed (owner chose option C): semitones from 1x to 2x; below 1x
-  only 1x, a fifth (0.67x), an octave (0.5x), octave + fifth, 2 octaves, ... down
-  to 1/8x. Reverse mirrors forward. The 0x and 1x / -1x zones are unchanged.
-- Looper.h adds CV amount x CV value to the speed (Modulate()); with nothing
-  plugged into the CV jack the CV value is forced to 0.007, so the speed is
-  0.007 x CV amount too high. The 1x lock zone hides it at 1x only. Snap now
-  subtracts that amount (`snap::speedOffset`, set in `Ui::Poll()`), so the played
-  speed lands on 2^(n/12). Not compensated: the Mod amount x Mod value.
-- PC check (Snap.h compiled on a PC): played speeds land on the grid, with and
-  without the offset.
+## Looper Speed grid, CV dead zone and step hysteresis, 16 Nov 2026 (fix 3)
+Owner's findings (RAM tests of fix 1 and fix 2, 16 Nov 2026):
+- Looper Speed steps were much finer than Pitch steps at slow speeds (a semitone
+  step on a linear knob is about 2.7% of the knob travel near 2x, 0.7% near 0.5x,
+  0.3% near 0.25x; Pitch 8.3%). Owner chose option C below.
+- With snap on, the loop played slightly sharp against the oscillator. With the
+  Looper Speed CV amount set to 0 (Shift + MOD/CV, Speed knob fully left) all
+  semitone tests stayed in tune and the beating at 1x was gone: the cause is the
+  Speed CV path. Looper.h adds CV amount x CV value to the speed, and Modulate()
+  forces the CV value to 0.007 when it is near 0. A compensation in fix 2 (snap
+  subtracting that amount) did not cancel it and probably made the up-steps
+  unstable (steps flipped); it is removed in fix 3. Why it did not cancel is not
+  known.
+Changes (`Snap.h`, `Ui.h`, `Looper.h`, `Commons.h`; fix 3 not yet verified on the
+module):
+- Grid for Looper Speed: semitones from 1x to 2x; below 1x only 1x, a fifth
+  (0.67x), an octave (0.5x), octave + fifth, 2 octaves, ... down to 1/8x. Reverse
+  mirrors forward. The 0x and 1x / -1x zones are unchanged.
+- Hysteresis: the step chosen last is kept until the knob is 0.4 semitone past
+  the middle towards another step.
+- `Looper.h`: while snap is on, a dead zone of +-0.05 is taken off the Speed CV
+  value, and when the CV is inside it the CV amount is taken as 0 (so the 0.007
+  of Modulate() is not added). A real CV signal still works. Snap off: stock.
+  `Commons.h`: new flag `PatchState::snapOn`, set in `Ui::Poll()`.

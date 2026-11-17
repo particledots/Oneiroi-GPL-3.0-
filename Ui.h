@@ -128,6 +128,7 @@ public:
 
         wasCvMap_ = false;
         snapOn_ = false; // ONEIROI-PERSONAL: always off at power-up
+        patchState_->snapOn = false;
         snapRandomWasPressed_ = false;
         recordAndRandomPressed_ = false;
         recordPressed_ = false; // USE_RECORD_THRESHOLD
@@ -1249,24 +1250,9 @@ public:
         }
 
         // ONEIROI-PERSONAL: pitch snap on four knobs (off until switched on).
+        patchState_->snapOn = snapOn_;
         if (snapOn_) {
             knobs_[PARAM_KNOB_OSC_PITCH]->Snap(snap::PitchKnob, 0.f);
-            // Looper.h adds CV amount * CV value to the speed (Modulate()); tell
-            // the snap, so the speed that is played lands on the grid.
-            {
-                float cvAmt = patchCtrls_->looperSpeedCvAmount;
-                if (patchState_->cvAttenuverters) {
-                    cvAmt = CenterMap(cvAmt);
-                    if (cvAmt >= -0.1f && cvAmt <= 0.1f) {
-                        cvAmt = 0.f;
-                    }
-                }
-                float cvVal = patchCvs_->looperSpeed;
-                if (cvVal >= -kCvMinThreshold && cvVal <= kCvMinThreshold) {
-                    cvVal = kCvMinThreshold;
-                }
-                snap::speedOffset = cvAmt * cvVal;
-            }
             knobs_[PARAM_KNOB_LOOPER_SPEED]->Snap(snap::SpeedKnob, patchState_->speedZero);
             knobs_[PARAM_KNOB_RESONATOR_TUNE]->Snap(snap::TuneKnob, patchCtrls_->resonatorDissonance);
             knobs_[PARAM_KNOB_FILTER_CUTOFF]->Snap(snap::CutoffKnob, 0.f);

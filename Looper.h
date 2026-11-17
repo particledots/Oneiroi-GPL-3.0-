@@ -458,7 +458,30 @@ public:
 
         MapSpeed();
         ParameterInterpolator speedParam(&oldSpeedValue_, speedValue_, kLooperInterpolationBlocks);
-        float rs = Modulate(speedParam.Next(), patchCtrls_->looperSpeedModAmount, patchState_->modValue, patchCtrls_->looperSpeedCvAmount, patchCvs_->looperSpeed, -2.f, 2.f, patchState_->modAttenuverters, patchState_->cvAttenuverters);
+        // ONEIROI-PERSONAL: with snap on, the small voltage an empty Speed CV jack
+        // gives (and the 0.007 that Modulate() adds then) must not move the speed
+        // off the snap grid. A dead zone of +-0.05 is taken off the CV value;
+        // a real CV signal still works.
+        float speedCvAmount = patchCtrls_->looperSpeedCvAmount;
+        float speedCv = patchCvs_->looperSpeed;
+        if (patchState_->snapOn)
+        {
+            constexpr float kSnapCvDeadZone = 0.05f;
+            if (speedCv > kSnapCvDeadZone)
+            {
+                speedCv -= kSnapCvDeadZone;
+            }
+            else if (speedCv < -kSnapCvDeadZone)
+            {
+                speedCv += kSnapCvDeadZone;
+            }
+            else
+            {
+                speedCv = 0.f;
+                speedCvAmount = 0.f;
+            }
+        }
+        float rs = Modulate(speedParam.Next(), patchCtrls_->looperSpeedModAmount, patchState_->modValue, speedCvAmount, speedCv, -2.f, 2.f, patchState_->modAttenuverters, patchState_->cvAttenuverters);
         SetSpeed(rs);
 
         ParameterInterpolator startParam(&oldStartValue_, patchCtrls_->looperStart, kLooperInterpolationBlocks);
