@@ -22,8 +22,8 @@ inline float PitchKnob(float v, float)
 }
 
 // Looper Speed: CenterMap turns the knob into -2..+2 with 0 at speedZero (the
-// calibrated centre, passed as arg). Grid (forward and reversed): semitones
-// 2^(n/12) from 1x to 2x; below 1x only 1x, then a fifth (n = -7), an octave
+// calibrated centre, passed as arg). Grid (forward and reversed): whole tones
+// 2^(n/12), n = 2, 4, ... 12, from 1x to 2x; below 1x only 1x, then a fifth (n = -7), an octave
 // (-12), octave + fifth (-19), 2 octaves (-24), ... down to 1/8 (-36). The zones
 // the firmware locks at 0x (under 0.1) and 1x / -1x (0.95 to 1.05) are left alone.
 // Hysteresis: the step chosen last is kept until the knob is clearly closer to
@@ -35,7 +35,7 @@ inline float SpeedKnob(float knob, float zero)
     static int lastM = 0;
     static bool lastNeg = false;
     static bool lastValid = false;
-    static const int kSteps[19] = {-36, -31, -24, -19, -12, -7, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    static const int kSteps[13] = {-36, -31, -24, -19, -12, -7, 0, 2, 4, 6, 8, 10, 12};
 
     const float v = knob < zero ? -2.f + 2.f * knob / zero
                                 : 2.f * (knob - zero) / (kSpeedTop - zero);
@@ -48,7 +48,7 @@ inline float SpeedKnob(float knob, float zero)
     const bool neg = v < 0.f;
     const float x = 12.f * log2f(a); // semitones from 1x
     int best = 0;
-    for (int i = 1; i < 19; i++)
+    for (int i = 1; i < 13; i++)
         if (fabsf(x - (float)kSteps[i]) < fabsf(x - (float)kSteps[best]))
             best = i;
     int m = kSteps[best];

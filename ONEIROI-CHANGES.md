@@ -100,3 +100,11 @@ module):
   value, and when the CV is inside it the CV amount is taken as 0 (so the 0.007
   of Modulate() is not added). A real CV signal still works. Snap off: stock.
   `Commons.h`: new flag `PatchState::snapOn`, set in `Ui::Poll()`.
+
+## Fix 4, 16 Nov 2026: whole tones for Looper Speed between 1x and 2x
+Owner's finding (RAM test of fix 3): everything in tune and good, but the Looper
+Speed knob still felt too sensitive, sometimes jumping 2 semitones with the
+smallest move (a semitone step is only about 2% to 3% of the knob travel there;
+Pitch steps are 8%). Owner chose whole tones. Change (`Snap.h`, not yet verified
+on the module): from 1x to 2x the Speed steps are whole tones (n = 2, 4, ... 12),
+forward and reversed. Below 1x unchanged (1x, 0.67x, 0.5x, ...).
