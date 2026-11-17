@@ -1,0 +1,20 @@
+elf: OwlProgram/Build/patch.elf
+   text	   data	    bss	    dec	    hex	filename
+ 101646	   1308	   1108	 104062	  1967e	OwlProgram/Build/patch.elf
+240030c8 00000044 T KnobController::GetCatchUpState()
+24003040 00000088 T KnobController::Reset()
+240033dc 00000470 T KnobController::Process()
+2400ce08 000002fc t KnobController::Randomize(RandomAmount, LockableParamName, bool) [clone .constprop.0]
+2400c978 00000170 t KnobController::KnobController(PatchState*, float*, float*, float*, float*, float, float) [clone .constprop.0] [clone .isra.0]
+2400cb50 000002b8 t Ui::SaveParametersConfig(FuncMode)
+240110f8 00002ec2 t Ui::Poll()
+24018d38 00000014 d vtable for KnobController
+2401933c 00000004 b snap::SpeedKnob(float, float)::lastM
+2401831c 00000034 t snap::SpeedKnob(float, float)::kSteps
+24019339 00000001 b snap::SpeedKnob(float, float)::lastNeg
+24019338 00000001 b snap::SpeedKnob(float, float)::lastValid
+--- math functions present
+24016ef4 00000016 T copysignf
+24016fbc 00000068 T lroundf
+24016a28 0000004c T roundf
+--- calls to them (count per target)
