@@ -108,3 +108,10 @@ smallest move (a semitone step is only about 2% to 3% of the knob travel there;
 Pitch steps are 8%). Owner chose whole tones. Change (`Snap.h`, not yet verified
 on the module): from 1x to 2x the Speed steps are whole tones (n = 2, 4, ... 12),
 forward and reversed. Below 1x unchanged (1x, 0.67x, 0.5x, ...).
+
+## Result, 16 Nov 2026
+Fix 4 (source 56c15ef) tested by the owner on a real Oneiroi: first in RAM, then
+stored to slot 1 (Preset 1 Oneiroi_1_2_2 [102956]). Result: good. All four knobs
+snap, the loop stays in tune with the oscillator, Random with snap on stays
+proportionally in tune, snap is off at power-up. Not verified: general effect of a
+store on the saved home state, a Speed CV signal through a cable.

@@ -121,3 +121,14 @@ The RANDOM LED blinks twice both when snap is switched on and when it is switche
 everything drastically, but everything stays in tune and harmonically related. After Random each knob takes over as soon as it is turned and the arrow
 LEDs do not blink continuously. Undo / redo with snap on works as normal. With snap off it sounds identical to stock (by ear). The module page shows
 Preset 0 Oneiroi_1_2_2 [102612], CPU 83%, memory 7319080 (unchanged). Not stored to slot 1.
+CORRECTION (16 Nov 2026): the 12 Nov result above held for Oscillator Pitch only. Retested on 16 Nov, the build of 12 Nov did not snap
+Looper Speed, Resonator Tune and Filter Cutoff properly (cause: the snapped value was written back into the knob smoother). Fixed below.
+
+Step 3 retest, 16 Nov 2026 (source commit 56c15ef, built on GitHub Actions, Oneiroi_1_2_2_snap_fix4.syx, 122,604 bytes). Tested on a real Oneiroi, first in RAM
+(Run), then stored to slot 1 (Messages: "sent patch 1", "Indexing 100", "Preset 1: Oneiroi_1_2_2 [102956]"). Fixes since 12 Nov: snapped value kept out of the knob
+smoother; Looper Speed grid = whole tones from 1x to 2x, below 1x only 1x, a fifth, an octave, octave + fifth, ... (reverse mirrors); while snap is on, Looper.h
+takes a dead zone of +-0.05 off the Speed CV value (an empty Speed CV jack made the loop slightly sharp against the oscillator); hysteresis on the Speed steps.
+Owner's result: all four knobs snap, loop and oscillator stay in tune at semitone steps, Random with snap on changes everything drastically but stays proportionally in
+tune, snap is off at every power-up and is switched on with MOD/CV tap, RANDOM tap, MOD/CV tap. After storing and a power-cycle it behaves as in the RAM test.
+Not verified: whether a stored patch changes the saved home state in general (the SOS setting stayed put after saving a new home state, owner still monitoring);
+the cause of why the 12 Nov test did not show the problems; a Speed CV signal through a cable (not tried). Details: ONEIROI-CHANGES.md.
